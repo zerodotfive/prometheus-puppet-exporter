@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -173,6 +174,10 @@ func CreateLastRunSummaryExporter(summary_file string) (*LastRunSummaryExporter,
 	}, nil
 }
 
+func RootHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "ok")
+}
+
 func main() {
 	var listen string
 	listen_def := "0.0.0.0:9140"
@@ -205,6 +210,7 @@ func main() {
 	last_run_summary_exporter, _ := CreateLastRunSummaryExporter(summary_file)
 	prometheus.MustRegister(last_run_summary_exporter)
 
+	http.HandleFunc("/", RootHandler)
 	http.Handle("/metrics", promhttp.Handler())
 	err := http.ListenAndServe(listen, nil)
 	if err != nil {
