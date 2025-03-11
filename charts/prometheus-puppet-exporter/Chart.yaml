@@ -1,0 +1,5 @@
+apiVersion: v2
+name: prometheus-puppet-exporter
+description: A Helm chart for deploying Prometheus Puppet Exporter as a DaemonSet
+version: 0.1.0
+appVersion: "latest"

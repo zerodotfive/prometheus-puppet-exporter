@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: prometheus-puppet-exporter
+  labels:
+    app: prometheus-puppet-exporter
+spec:
+  selector:
+    matchLabels:
+      app: prometheus-puppet-exporter
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.listenPort }}"
+      labels:
+        app: prometheus-puppet-exporter
+    spec:
+      hostNetwork: true
+      restartPolicy: Always
+      containers:
+        - name: prometheus-puppet-exporter
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          args:
+            - "/mnt/last_run_summary.yaml"
+            - "--listen={{ .Values.listenAddress }}:{{ .Values.listenPort }}"
+          ports:
+            - containerPort: {{ .Values.listenPort }}
+          volumeMounts:
+            - name: last-run-summary
+              mountPath: /mnt
+            - name: proc
+              mountPath: /proc
+              readOnly: true
+          resources:
+            requests:
+              cpu: "{{ .Values.resources.requests.cpu }}"
+              memory: "{{ .Values.resources.requests.memory }}"
+            limits:
+              cpu: "{{ .Values.resources.limits.cpu }}"
+              memory: "{{ .Values.resources.limits.memory }}"
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+      volumes:
+        - name: last-run-summary
+          hostPath:
+            path: "{{ .Values.lastRunSummaryDirPath }}"
+            type: Directory
+        - name: proc
+          hostPath:
+            path: /proc
+            type: Directory

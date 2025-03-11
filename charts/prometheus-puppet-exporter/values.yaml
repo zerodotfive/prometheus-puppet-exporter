@@ -1,0 +1,19 @@
+---
+image:
+  repository: zerodotfive/prometheus-puppet-exporter
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Path to the external last_run_summary.yaml file
+lastRunSummaryDirPath: /var/cache/puppet/public
+
+listenAddress: 0.0.0.0
+listenPort: 9140
+
+resources:
+  limits:
+    cpu: "100m"
+    memory: "64Mi"
+  requests:
+    cpu: "100m"
+    memory: "64Mi"
